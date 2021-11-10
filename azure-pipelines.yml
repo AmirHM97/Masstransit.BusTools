@@ -1,0 +1,46 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+steps:
+- task: UseDotNet@2
+  displayName: 'Install .NET Core SDK'
+  inputs:
+    version: 5.0.x
+    performMultiLevelLookup: true
+    
+- task: DotNetCoreCLI@2
+  displayName: restore
+  inputs:
+    command: 'restore'
+    projects: '**/*.csproj'
+    feedsToUse: 'select'
+    vstsFeed: '94d645ec-8620-4b1b-b96d-6c7d9a212a3b/fd7b8db0-12c9-4360-a6bd-c2c9fe7e71de'
+  
+- task: DotNetCoreCLI@2
+  displayName: build
+  inputs:
+    command: 'build'
+    projects: '**/*.csproj'
+
+- task: DotNetCoreCLI@2
+  displayName: pack
+  inputs:
+    command: 'pack'
+    packagesToPack: '**/*.csproj'
+    versioningScheme: 'byPrereleaseNumber'
+    majorVersion: '1'
+    minorVersion: '0'
+    patchVersion: '0'
+
+- task: DotNetCoreCLI@2
+  displayName: push
+  inputs:
+   command: 'push'
+   packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+   nuGetFeedType: 'internal'
+   publishVstsFeed: '94d645ec-8620-4b1b-b96d-6c7d9a212a3b/fd7b8db0-12c9-4360-a6bd-c2c9fe7e71de'
